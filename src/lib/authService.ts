@@ -28,6 +28,50 @@ export function mapSupabaseUserToAppUser(sbUser: any): User {
     lastLogin: sbUser.last_sign_in_at || new Date().toISOString()
   };
 }
+ 
+/**
+ * Translate low-level browser network errors, paused Supabase instances,
+ * and Supabase auth error messages into actionable, user-friendly messages.
+ */
+export function parseAuthErrorMessage(error: any): string {
+  if (!error) return 'An unknown authentication error occurred.';
+  const rawMsg = typeof error === 'string' ? error : error.message || error.error_description || '';
+  const lower = rawMsg.toLowerCase();
+
+  // Failed to fetch / NetworkError / ENOTFOUND / DNS failure / Offline
+  if (
+    lower.includes('failed to fetch') ||
+    lower.includes('networkerror') ||
+    lower.includes('enotfound') ||
+    lower.includes('load failed') ||
+    lower.includes('network request failed') ||
+    lower.includes('connection refused')
+  ) {
+    return 'Unable to connect to the authentication server. If using a Supabase free-tier project, please verify that it has not been paused in the Supabase Dashboard, or verify your internet connection.';
+  }
+
+  if (lower.includes('invalid login credentials')) {
+    return 'Invalid email or password. Please check your credentials and try again.';
+  }
+
+  if (lower.includes('email not confirmed')) {
+    return 'Your email has not been confirmed yet. Please check your inbox for the confirmation link.';
+  }
+
+  if (lower.includes('user already registered') || lower.includes('already registered')) {
+    return 'An account with this email address already exists. Please sign in instead.';
+  }
+
+  if (lower.includes('password should be at least')) {
+    return 'Password must be at least 6 characters long.';
+  }
+
+  if (lower.includes('rate limit')) {
+    return 'Too many attempts. Please wait a few moments before trying again.';
+  }
+
+  return rawMsg || 'An error occurred during authentication. Please try again.';
+}
 
 /**
  * Sign in with email and password via Supabase Auth
@@ -40,13 +84,7 @@ export async function signInWithSupabase(email: string, password: string): Promi
     });
 
     if (error) {
-      let friendlyMessage = error.message;
-      if (error.message.includes('Invalid login credentials')) {
-        friendlyMessage = 'Invalid email or password. Please check your credentials and try again.';
-      } else if (error.message.includes('Email not confirmed')) {
-        friendlyMessage = 'Your email has not been confirmed yet. Please check your inbox for the confirmation link.';
-      }
-      return { success: false, message: friendlyMessage };
+      return { success: false, message: parseAuthErrorMessage(error) };
     }
 
     if (data?.user) {
@@ -58,7 +96,7 @@ export async function signInWithSupabase(email: string, password: string): Promi
 
     return { success: false, message: 'Login failed. Please try again.' };
   } catch (err: any) {
-    return { success: false, message: err?.message || 'Network error occurred during login.' };
+    return { success: false, message: parseAuthErrorMessage(err) };
   }
 }
 
@@ -135,13 +173,7 @@ export async function signUpWithSupabase(
     });
 
     if (error) {
-      let friendlyMessage = error.message;
-      if (error.message.includes('already registered')) {
-        friendlyMessage = 'An account with this email address already exists. Please sign in instead.';
-      } else if (error.message.includes('Password should be at least')) {
-        friendlyMessage = 'Password must be at least 6 characters long.';
-      }
-      return { success: false, message: friendlyMessage };
+      return { success: false, message: parseAuthErrorMessage(error) };
     }
 
     if (data?.user) {
@@ -154,7 +186,7 @@ export async function signUpWithSupabase(
 
     return { success: false, message: 'Sign up failed. Please try again.' };
   } catch (err: any) {
-    return { success: false, message: err?.message || 'Network error occurred during sign up.' };
+    return { success: false, message: parseAuthErrorMessage(err) };
   }
 }
 
@@ -165,7 +197,7 @@ export function getResetPasswordRedirectUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {
     return `${window.location.origin}/reset-password`;
   }
-  return 'https://pharmacymgtsys.netlify.app/reset-password';
+  return 'https://jjesdropharmacymgtsys.netlify.app/reset-password';
 }
 
 /**
@@ -257,11 +289,7 @@ export async function sendPasswordResetEmail(email: string): Promise<AuthRespons
     });
 
     if (error) {
-      let friendlyMsg = error.message;
-      if (error.message.includes('rate limit')) {
-        friendlyMsg = 'Too many password reset requests. Please wait a few minutes before trying again.';
-      }
-      return { success: false, message: friendlyMsg };
+      return { success: false, message: parseAuthErrorMessage(error) };
     }
 
     return {
@@ -269,7 +297,7 @@ export async function sendPasswordResetEmail(email: string): Promise<AuthRespons
       message: 'Password reset link sent! Please check your email inbox for instructions.'
     };
   } catch (err: any) {
-    return { success: false, message: err?.message || 'Failed to send password reset email.' };
+    return { success: false, message: parseAuthErrorMessage(err) };
   }
 }
 
@@ -283,13 +311,7 @@ export async function updateSupabasePassword(newPassword: string): Promise<AuthR
     });
 
     if (error) {
-      let friendlyMsg = error.message;
-      if (error.message.includes('same as the old password') || error.message.includes('different from the old')) {
-        friendlyMsg = 'New password should be different from your previous password.';
-      } else if (error.message.includes('Password should be at least')) {
-        friendlyMsg = 'Password must be at least 8 characters in length.';
-      }
-      return { success: false, message: friendlyMsg };
+      return { success: false, message: parseAuthErrorMessage(error) };
     }
 
     return {
@@ -298,7 +320,7 @@ export async function updateSupabasePassword(newPassword: string): Promise<AuthR
       message: 'Your password has been updated successfully.'
     };
   } catch (err: any) {
-    return { success: false, message: err?.message || 'Failed to update password.' };
+    return { success: false, message: parseAuthErrorMessage(err) };
   }
 }
 

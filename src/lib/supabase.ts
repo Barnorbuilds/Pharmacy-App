@@ -27,7 +27,14 @@ const SUPABASE_ANON_KEY =
   (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_ANON_KEY) ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lbnpndHR3a2hlcGF2YmtjYWNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NDg3MTIsImV4cCI6MjEwMjIyNDcxMn0.kcKn419KctlwijIJ0CeLcVKWYnM8dy0ec1cDsvSUByQ';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storageKey: 'pharmasys_sb_auth_token'
+  }
+});
 
 // Synchronously register an early auth listener so events like PASSWORD_RECOVERY
 // dispatched during GoTrueClient's initialize() are never dropped

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jjesdro-pharmacy-v3';
+const CACHE_NAME = 'jjesdro-pharmacy-v4';
 const STATIC_ASSETS = [
   '/manifest.json',
   '/icon.svg'
@@ -33,6 +33,12 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
+
+  // CRITICAL FIX: Only handle same-origin static requests.
+  // Never intercept external requests (such as Supabase Auth/REST/Storage or CDNs)
+  // or internal /api/ routes, which causes "Failed to fetch" TypeError.
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/')) return;
 
   // 1. Navigation requests: Network-First to ensure latest HTML and chunk hashes are loaded
   if (event.request.mode === 'navigate' || event.request.destination === 'document') {

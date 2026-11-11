@@ -59,6 +59,7 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
     isDemoMode,
     toggleDemoMode,
     resetDemoData,
+    removeDemoCompany,
     switchDemoUser,
     demoUsersList
   } = usePharmacy();
@@ -67,7 +68,11 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAlertsDropdown, setShowAlertsDropdown] = useState(false);
   const [showDemoInfoModal, setShowDemoInfoModal] = useState(false);
+  const [showRemoveDemoModal, setShowRemoveDemoModal] = useState(false);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState('');
+  const [deleteError, setDeleteError] = useState('');
   const [resetSuccessToast, setResetSuccessToast] = useState(false);
+  const [removeSuccessToast, setRemoveSuccessToast] = useState(false);
 
   // User Profile Dropdown & Photo Upload States
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -323,17 +328,18 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
           )}
         </div>
 
-        {/* Dedicated DEMO MODE Indicator & Role Switcher */}
+        {/* Dedicated DEMO COMPANY Indicator & Company Switcher */}
         {isDemoMode ? (
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={() => setShowDemoInfoModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-bold transition shadow-xs group"
-              title="Click to view Demo Presentation Overview & Settings"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-200 border border-amber-500/40 text-xs font-bold transition shadow-xs group"
+              title="Click to view Demo Company Switcher & Settings"
             >
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-              <span className="tracking-wide">DEMO MODE</span>
-              <Info className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <span className="tracking-wide">DEMO COMPANY</span>
+              <span className="hidden xl:inline text-[11px] font-normal text-amber-900/80 dark:text-amber-200/80">• HealthPlus Pharmacy Ltd</span>
+              <Info className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity ml-0.5" />
             </button>
 
             {/* Quick Demo Role Switcher */}
@@ -355,14 +361,14 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
             {/* Quick Reset Demo Data Button */}
             <button
               onClick={() => {
-                if (window.confirm("Reset all medicines, sales (2024-2026), purchases, expenses, and prescriptions back to pristine sample state?")) {
+                if (window.confirm("Reset all HealthPlus Pharmacy Ltd medicines, sales (2025-2026), purchases, expenses, and prescriptions back to clean demo state?")) {
                   resetDemoData();
                   setResetSuccessToast(true);
                   setTimeout(() => setResetSuccessToast(false), 3500);
                 }
               }}
               className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-400 transition"
-              title="Reset Demo Data back to pristine state"
+              title="Reset HealthPlus Pharmacy Ltd to pristine demo state"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
@@ -370,11 +376,11 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
         ) : (
           <button
             onClick={() => toggleDemoMode(true)}
-            className="hidden lg:flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 px-2.5 py-1.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 transition"
-            title="Enable Demo Presentation Mode"
+            className="hidden lg:flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 px-3 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700 transition"
+            title="Switch to Demo Company (HealthPlus Pharmacy Ltd)"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Enable Demo Mode</span>
+            <Building2 className="w-3.5 h-3.5 text-amber-500" />
+            <span>Switch to Demo Company</span>
           </button>
         )}
 
@@ -672,18 +678,18 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
             <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
               {/* Notice Banner */}
               <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-                <p className="font-semibold mb-1">Presentation Mode Information Notice:</p>
-                This environment is pre-loaded with realistic fictional information designed specifically for demonstrations to pharmacy owners, partners, and investors. All customer identities, medical records, and financial figures are sample data and isolated from production.
+                <p className="font-semibold mb-1">Demo Company Active • HealthPlus Pharmacy Ltd:</p>
+                This temporary demonstration environment contains realistic, interconnected historical and current transactions covering <strong>1 January 2025 to 31 December 2026</strong>. All records are strictly isolated from your live production database and can be reset or removed at any time.
               </div>
 
               {/* Demo Profile Details */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Organization</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-100">HealthPlus Pharmacy</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Company</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-100 truncate block">HealthPlus Pharmacy Ltd</span>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Location</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Location & Country</span>
                   <span className="font-bold text-slate-800 dark:text-slate-100">Accra, Ghana</span>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
@@ -691,8 +697,8 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
                   <span className="font-bold text-slate-800 dark:text-slate-100">GHS (GH₵)</span>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Time Periods</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-100">2024, 2025, 2026</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Demo Period</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-100">2025 – 2026</span>
                 </div>
               </div>
 
@@ -740,34 +746,71 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
 
               {/* Dataset Summary */}
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
-                <p className="font-bold text-slate-900 dark:text-white mb-2">Pre-populated Presentation Datasets:</p>
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
-                  <div>• <strong>50+ Medicines</strong> across 14 categories</div>
-                  <div>• <strong>150+ POS Transactions</strong> (2024–2026)</div>
-                  <div>• <strong>35 Customers</strong> with loyalty points</div>
-                  <div>• <strong>10 Suppliers</strong> with payables reconciliation</div>
-                  <div>• <strong>Clinical Prescriptions</strong> with dosages</div>
-                  <div>• <strong>Financial P&L Statements</strong> & expenses</div>
+                <p className="font-bold text-slate-900 dark:text-white mb-2">Pre-populated 2025–2026 Presentation Datasets:</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-[11px]">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 block text-sm">135+</span>
+                    <span>Medicines across 15 categories</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="font-bold text-blue-600 dark:text-blue-400 block text-sm">516</span>
+                    <span>Sales Invoices (2025 & 2026)</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="font-bold text-purple-600 dark:text-purple-400 block text-sm">80</span>
+                    <span>Recorded Purchases & Stock-Ins</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="font-bold text-amber-600 dark:text-amber-400 block text-sm">60</span>
+                    <span>Ghanaian Patients & Clients</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="font-bold text-teal-600 dark:text-teal-400 block text-sm">36</span>
+                    <span>Verified Prescriptions & Doctors</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="font-bold text-rose-600 dark:text-rose-400 block text-sm">104</span>
+                    <span>Operating Expenses (2025–2026)</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Modal Footer Controls */}
             <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/50">
-              <button
-                onClick={() => {
-                  if (window.confirm("Reset all medicines, sales, and expenses back to clean demo baseline?")) {
-                    resetDemoData();
-                    setResetSuccessToast(true);
-                    setTimeout(() => setResetSuccessToast(false), 3500);
-                    setShowDemoInfoModal(false);
-                  }
-                }}
-                className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600 text-xs font-bold transition shadow-sm"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Demo Data</span>
-              </button>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => {
+                    if (window.confirm("Reset all HealthPlus Pharmacy Ltd data (medicines, 2025-2026 sales, purchases, expenses) back to clean baseline?")) {
+                      resetDemoData();
+                      setResetSuccessToast(true);
+                      setTimeout(() => setResetSuccessToast(false), 3500);
+                      setShowDemoInfoModal(false);
+                    }
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600 text-xs font-bold transition shadow-sm"
+                  title="Reset Demo Data back to pristine 2025-2026 baseline"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset Demo Data</span>
+                </button>
+
+                {(currentUser.role === 'Super Admin' || currentUser.role === 'Administrator' || currentUser.role === 'Pharmacy Owner') && (
+                  <button
+                    onClick={() => {
+                      setShowDemoInfoModal(false);
+                      setDeleteConfirmInput('');
+                      setDeleteError('');
+                      setShowRemoveDemoModal(true);
+                    }}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-xs font-bold transition"
+                    title="Permanently remove demo company and all demo records"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Remove Demo Company</span>
+                  </button>
+                )}
+              </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <button
@@ -777,15 +820,99 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
                   }}
                   className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                 >
-                  {isDemoMode ? "Disable Demo Mode" : "Enable Demo Mode"}
+                  {isDemoMode ? "Switch to Live Production" : "Switch to Demo Company"}
                 </button>
                 <button
                   onClick={() => setShowDemoInfoModal(false)}
                   className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold transition"
                 >
-                  Done
+                  Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dedicated Remove Demo Company Modal (Admin-only confirmation) */}
+      {showRemoveDemoModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full shadow-2xl border border-rose-200 dark:border-rose-900/50 overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3 bg-rose-50/50 dark:bg-rose-950/20">
+              <div className="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                  Remove Demo Company
+                </h3>
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                  Administrator Confirmation Required
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                You are about to permanently delete <strong>HealthPlus Pharmacy Ltd</strong> and all of its associated demo transactions (2025–2026 medicines, sales, purchases, prescriptions, expenses, and patients).
+              </p>
+
+              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-200">
+                <strong>Data Isolation Safety:</strong> Your live production company records, Supabase database, and actual customer data will <strong>NOT</strong> be affected.
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  To confirm, type <span className="font-mono font-bold text-rose-600 dark:text-rose-400 select-all">HealthPlus Pharmacy Ltd</span>:
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmInput}
+                  onChange={(e) => {
+                    setDeleteConfirmInput(e.target.value);
+                    if (deleteError) setDeleteError('');
+                  }}
+                  placeholder="Type HealthPlus Pharmacy Ltd"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                  autoFocus
+                />
+                {deleteError && (
+                  <p className="text-xs text-rose-600 dark:text-rose-400 mt-1">{deleteError}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2 bg-slate-50 dark:bg-slate-900/50">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRemoveDemoModal(false);
+                  setDeleteConfirmInput('');
+                  setDeleteError('');
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleteConfirmInput.trim() !== 'HealthPlus Pharmacy Ltd'}
+                onClick={() => {
+                  if (deleteConfirmInput.trim() !== 'HealthPlus Pharmacy Ltd') {
+                    setDeleteError('Please type the exact company name: HealthPlus Pharmacy Ltd');
+                    return;
+                  }
+                  removeDemoCompany();
+                  setShowRemoveDemoModal(false);
+                  setDeleteConfirmInput('');
+                  setRemoveSuccessToast(true);
+                  setTimeout(() => setRemoveSuccessToast(false), 4000);
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-sm"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Demo Company</span>
+              </button>
             </div>
           </div>
         </div>
@@ -795,7 +922,15 @@ export const Topbar: React.FC<TopbarProps> = ({ sidebarCollapsed }) => {
       {resetSuccessToast && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-emerald-600 text-white shadow-2xl animate-in slide-in-from-bottom-5 duration-200 text-xs font-semibold">
           <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-          <span>Demo environment successfully reset to pristine presentation state!</span>
+          <span>HealthPlus Pharmacy Ltd successfully reset to pristine 2025–2026 demo state!</span>
+        </div>
+      )}
+
+      {/* Toast Notice for Demo Removal */}
+      {removeSuccessToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-900 text-white shadow-2xl animate-in slide-in-from-bottom-5 duration-200 text-xs font-semibold border border-slate-700">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span>Demo company and all demo records removed. Switched to Live Production.</span>
         </div>
       )}
     </header>

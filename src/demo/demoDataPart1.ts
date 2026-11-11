@@ -1,7 +1,7 @@
 import { PharmacySettings, User, Supplier, Category } from '../types';
 
 export const demoPharmacySettings: PharmacySettings = {
-  pharmacyName: "HealthPlus Pharmacy",
+  pharmacyName: "HealthPlus Pharmacy Ltd",
   licenseNumber: "HP-ACCRA-2024-GH",
   address: "Plot 42 Liberation Road, Airport Residential Area, Accra, Ghana",
   phone: "+233 20 000 0000",
@@ -21,8 +21,8 @@ export const demoPharmacySettings: PharmacySettings = {
   expiryWarningDays: 90,
   enablePrescriptionAlert: true,
   enableLoyaltyProgram: true,
-  receiptHeaderNotice: "HealthPlus Pharmacy • Quality Healthcare You Can Trust • Accra, Ghana",
-  receiptFooterNotice: "Thank you for choosing HealthPlus Pharmacy! Valid Rx required for prescription medicines. Call +233 20 000 0000 for emergency refills.",
+  receiptHeaderNotice: "HealthPlus Pharmacy Ltd • Quality Healthcare You Can Trust • Accra, Ghana",
+  receiptFooterNotice: "Thank you for choosing HealthPlus Pharmacy Ltd! Valid Rx required for prescription medicines. Call +233 20 000 0000 for emergency refills.",
   isCompanyConfigured: true
 };
 

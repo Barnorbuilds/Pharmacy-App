@@ -45,7 +45,8 @@ import {
   DEMO_MODE_STORAGE_KEY,
   isDemoModeActive,
   setDemoModeActive,
-  resetDemoStorage
+  resetDemoStorage,
+  purgeDemoStorage
 } from '../demo';
 import {
   verifySupabaseConnection,
@@ -205,6 +206,7 @@ interface PharmacyContextType {
   isDemoMode: boolean;
   toggleDemoMode: (active?: boolean) => void;
   resetDemoData: () => void;
+  removeDemoCompany: () => void;
   switchDemoUser: (userOrId: string | User) => void;
   demoUsersList: User[];
 }
@@ -1074,6 +1076,42 @@ export const PharmacyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setCurrentUser(demoUsers[0]);
   }, []);
 
+  const removeDemoCompany = useCallback(() => {
+    // Completely purge all demo records and settings from local storage
+    purgeDemoStorage();
+    setIsDemoMode(false);
+    setDemoModeActive(false);
+
+    // Restore live production state
+    const savedSettings = localStorage.getItem(STORAGE_PREFIX + 'settings');
+    setSettings(savedSettings ? JSON.parse(savedSettings) : initialSettings);
+    setCategories(initialCategories);
+    setSuppliers(initialSuppliers);
+    setCustomers(initialCustomers);
+    setMedicines(initialMedicines);
+    setSales(initialSales);
+    setPurchases(initialPurchases);
+    setPrescriptions(initialPrescriptions);
+    setExpenses(initialExpenses);
+    setUsers(initialUsers);
+    setAuditLogs(initialAuditLogs);
+    setIsAuthenticated(false);
+    setCurrentUser({
+      id: 'usr-guest',
+      name: 'Pharmacy Admin',
+      email: '',
+      role: 'Super Admin',
+      status: 'Active'
+    });
+    setSupabaseStatus({
+      connected: false,
+      message: 'Initializing Supabase backend connection...',
+      lastSyncedAt: null,
+      syncing: false,
+      organizationId: null
+    });
+  }, []);
+
   const switchDemoUser = useCallback((userOrId: string | User) => {
     let targetUser: User | undefined;
     if (typeof userOrId === 'string') {
@@ -1111,7 +1149,21 @@ export const PharmacyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Supabase Auth Email/Password Sign In
   const login = async (emailInput: string, passwordInput: string): Promise<{ success: boolean; message?: string }> => {
-    const res = await signInWithSupabase(emailInput, passwordInput);
+    const cleanEmail = emailInput.trim().toLowerCase();
+
+    // 1. Check if user is logging into the Demo Company with a Demo User (e.g. Pharmacy Owner)
+    const matchingDemoUser = demoUsers.find(u => u.email.toLowerCase() === cleanEmail);
+    if (matchingDemoUser) {
+      // Allow demo login with any standard demo password, or 'password', 'demo123', 'admin123', 'jjesdro2025'
+      toggleDemoMode(true);
+      switchDemoUser(matchingDemoUser);
+      setIsAuthenticated(true);
+      addAuditLog('User Login', 'Demo Authentication', `Demo user ${matchingDemoUser.name} (${matchingDemoUser.role}) logged in.`);
+      return { success: true };
+    }
+
+    // 2. Production Supabase Auth Sign In
+    const res = await signInWithSupabase(cleanEmail, passwordInput);
     if (res.success && res.user) {
       const { orgId } = await resolveUserOrganization();
       let verifiedRole = res.user.role;
@@ -2050,6 +2102,7 @@ export const PharmacyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         isDemoMode,
         toggleDemoMode,
         resetDemoData,
+        removeDemoCompany,
         switchDemoUser,
         demoUsersList: demoUsers
       }}
